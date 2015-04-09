@@ -1,2 +1,40 @@
 ---
-# tasks file for app
+- name: create application group
+  group: name="{{ app_group }}" gid="{{ app_group_id|default(omit) }}" system=yes state=present
+  when: app_group is defined
+
+- name: create application user
+  user: name="{{ app_user }}" uid="{{ app_user_id|default(omit) }}" group="{{ app_group|default(omit) }}" home="{{ app_home|default(omit) }}" shell="{{ app_user_shell|default('/sbin/nologin') }}" system=yes state=present
+  when: app_user is defined
+
+- name: create application directories
+  file: path="{{ app_home }}/{{ item }}" owner="{{ app_user }}" group="{{ app_group|default(omit) }}" state=directory
+  with_items:
+    - shared
+    - releases
+
+- name: get application tar file
+  get_url: url="{{ app_download_url }}" dest="/usr/local/src/{{ app_archive }}"
+  register: app_install
+  when: app_download_url is defined
+
+- name: unarchive app
+  unarchive: src="/usr/local/src/{{ app_archive }}" dest=/usr/local/src copy=no
+  when: app_install|changed
+
+- name: install app
+  command: /bin/mv /usr/local/src/{{ app_extracted_name|default(app_base_name) }} {{ app_home }}/releases/{{ app_base_name }} creates={{ app_home }}/releases/{{ app_base_name }}
+  when: app_install|changed
+
+- name: create app symlinks
+  file: path="{{ app_home }}/releases/{{ app_base_name }}/{{ item }}" src="{{ app_home }}/shared/{{ item }}" state=link force=yes
+  with_items: app_shared_links
+  when: app_install|changed and app_shared_links is defined
+
+- name: update app symlink
+  file: path="{{ app_home }}/releases/current" src="{{ app_home }}/releases/{{ app_base_name }}" state=link
+  when: app_install|changed
+
+- name: app home directory permissions
+  file: path={{ app_home }} owner={{ app_user }} group={{ app_group|default(app_user) }} mode=0755 recurse=yes
+  when: app_home is defined

@@ -1,2 +1,3 @@
 ---
-# defaults file for app
+app_name: app
+app_user: app
