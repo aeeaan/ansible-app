@@ -29,11 +29,10 @@
 - name: create app symlinks
   file: path="{{ app_home }}/releases/{{ app_base_name }}/{{ item }}" src="{{ app_home }}/shared/{{ item }}" state=link force=yes
   with_items: app_shared_links
-  when: app_install|changed and app_shared_links is defined
+  when: app_shared_links is defined
 
 - name: update app symlink
   file: path="{{ app_home }}/releases/current" src="{{ app_home }}/releases/{{ app_base_name }}" state=link
-  when: app_install|changed
 
 - name: app home directory permissions
   file: path={{ app_home }} owner={{ app_user }} group={{ app_group|default(app_user) }} mode=0755 recurse=yes
