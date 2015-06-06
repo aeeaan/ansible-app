@@ -3,27 +3,14 @@ allow_duplicates: yes
 galaxy_info:
   author: Joshua Rusch
   description: generic app role
-  company: your company (optional)
+  company:
   license: MIT
-  min_ansible_version: 1.2
+  min_ansible_version: 1.9.1
   platforms:
   - name: EL
     versions:
     - 7
-  #categories:
-  #- cloud
-  #- cloud:ec2
-  #- cloud:gce
-  #- cloud:rax
-  #- clustering
-  #- database
-  #- database:nosql
-  #- database:sql
-  #- development
-  #- monitoring
-  #- networking
-  #- packaging
-  #- system
-  #- web
+  categories:
+  - development
+  - web
 dependencies: []
-  
